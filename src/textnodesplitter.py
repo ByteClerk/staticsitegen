@@ -1,6 +1,18 @@
 import re
 from textnode import TextNode, TextType
 
+def text_to_textnodes(text):
+
+    source = TextNode(text, TextType.TEXT)
+    
+    nodes = split_nodes_delimiter([source], '**', TextType.BOLD)
+    nodes = split_nodes_delimiter(nodes, '_', TextType.ITALIC)
+    nodes = split_nodes_delimiter(nodes, '`', TextType.CODE)
+    nodes = split_nodes_image(nodes)
+    nodes = split_nodes_link(nodes)
+    return nodes
+
+
 def split_nodes_delimiter(old_nodes, delimiter, text_type):
     
     result_nodes = []
@@ -49,6 +61,9 @@ def split_nodes_image(old_nodes):
             result_nodes.append(TextNode(image_alt, TextType.IMAGE, image_link))
             current_text = splitted[1]
 
+        if len(current_text) > 0:
+            result_nodes.append(TextNode(current_text, TextType.TEXT))
+
     return result_nodes
 
 def split_nodes_link(old_nodes):
@@ -71,6 +86,9 @@ def split_nodes_link(old_nodes):
             result_nodes.append(TextNode(splitted[0], TextType.TEXT))
             result_nodes.append(TextNode(link_text, TextType.LINK, link_url))
             current_text = splitted[1]
+        
+        if len(current_text) > 0:
+            result_nodes.append(TextNode(current_text, TextType.TEXT))
 
     return result_nodes
 
